@@ -1,26 +1,24 @@
-version: '3.5'
-
 services:
-  tasks-db:
+  car-log-db:
     image: postgres:alpine
     restart: always
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-    container_name: tasks-db
+    container_name: car-log-db
     volumes:
-      - ./pgdata:/var/lib/postgresql/data
+      - car-log-db:/var/lib/postgresql/data
     ports:
       - '5432:5432'
     networks:
-      - tasks-network
+      - car-log-network
 
-  tasks-app:
+  car-log-app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: tasks-app
+    container_name: car-log-app
     environment:
       - PORT=${PORT}
       - POSTGRES_HOST=${POSTGRES_HOST}
@@ -31,33 +29,35 @@ services:
     ports:
       - '3000:3000'
     depends_on:
-      - tasks-db
-      - tasks-redis
+      - car-log-db
+      - car-log-redis
     networks:
-      - tasks-network
+      - car-log-network
     volumes:
       - .:/app
       - /app/node_modules
 
-  tasks-pgadmin4:
+  car-log-pgadmin:
     image: dpage/pgadmin4
     restart: always
-    container_name: tasks-pgadmin4
+    container_name: car-log-pgadmin
     environment:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
     ports:
       - '5050:80'
     depends_on:
-      - tasks-db
+      - car-log-db
+    volumes:
+      - car-log-pgadmin:/var/lib/pgadmin
 
-  tasks-redis:
+  car-log-redis:
     image: redis:latest
-    container_name: tasks-redis
+    container_name: car-log-redis
     ports:
       - '6379:6379'
     networks:
-      - tasks-network
+      - car-log-network
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
@@ -67,7 +67,14 @@ services:
 volumes:
   redis:
     driver: local
+    name: car-log-redis
+  car-log-db:
+    driver: local
+    name: car-log-db
+  car-log-pgadmin:
+    driver: local
+    name: car-log-pgadmin
 
 networks:
-  tasks-network:
+  car-log-network:
     driver: bridge
