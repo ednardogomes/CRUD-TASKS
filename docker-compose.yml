@@ -1,24 +1,24 @@
 services:
-  car-log-db:
+  car_log_db:
     image: postgres:alpine
     restart: always
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-    container_name: car-log-db
+    container_name: car_log_db
     volumes:
-      - car-log-db:/var/lib/postgresql/data
+      - car_log_db:/var/lib/postgresql/data
     ports:
       - '5432:5432'
     networks:
-      - car-log-network
+      - car_log_network
 
-  car-log-app:
+  car_log_app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: car-log-app
+    container_name: car_log_app
     environment:
       - PORT=${PORT}
       - POSTGRES_HOST=${POSTGRES_HOST}
@@ -29,35 +29,37 @@ services:
     ports:
       - '3000:3000'
     depends_on:
-      - car-log-db
-      - car-log-redis
+      - car_log_db
+      - car_log_redis
     networks:
-      - car-log-network
+      - car_log_network
     volumes:
       - .:/app
       - /app/node_modules
 
-  car-log-pgadmin:
+  car_log_pgadmin:
     image: dpage/pgadmin4
     restart: always
-    container_name: car-log-pgadmin
+    container_name: car_log_pgadmin
     environment:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
     ports:
       - '5050:80'
     depends_on:
-      - car-log-db
+      - car_log_db
+    networks:
+      - car_log_network
     volumes:
-      - car-log-pgadmin:/var/lib/pgadmin
+      - car_log_pgadmin:/var/lib/pgadmin
 
-  car-log-redis:
+  car_log_redis:
     image: redis:latest
-    container_name: car-log-redis
+    container_name: car_log_redis
     ports:
       - '6379:6379'
     networks:
-      - car-log-network
+      - car_log_network
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
@@ -67,14 +69,14 @@ services:
 volumes:
   redis:
     driver: local
-    name: car-log-redis
-  car-log-db:
+    name: car_log_redis
+  car_log_db:
     driver: local
-    name: car-log-db
-  car-log-pgadmin:
+    name: car_log_db
+  car_log_pgadmin:
     driver: local
-    name: car-log-pgadmin
+    name: car_log_pgadmin
 
 networks:
-  car-log-network:
+  car_log_network:
     driver: bridge
